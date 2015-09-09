@@ -1,0 +1,20 @@
+{
+  "name": "ecodoc-ato-legal",
+  "version": "0.0.1",
+  "authors": [
+    "Charliston Maffei <charliston_m@yahoo.com.br>"
+  ],
+  "main": "plugin.js",
+  "moduleType": [
+    "amd"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "app/bower_components",
+    "test",
+    "tests"
+  ]
+}
