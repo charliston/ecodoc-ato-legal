@@ -3,7 +3,7 @@
     requires : ['iframedialog', 'widget'],
     init : function(editor) {
       // custom css
-      CKEDITOR.config.contentsCss =  'scripts/ecodoc-ato-legal/styles/contents.css';
+      CKEDITOR.config.contentsCss =  'bower_components/ecodoc-ato-legal/styles/contents.css';
       // permitir os campos no editor
       editor.filter.allow( 'a(*)[*]{*};', 'ecodoc-ato-legal' );
       // We will start from registering the widget dialog window by calling the standard CKEDITOR.dialog.add method inside the init method of the widget plugin definition.
@@ -23,7 +23,7 @@
             elements : [{
               id : 'atoLegalIframe',
               type : 'iframe',
-              src : 'scripts/ecodoc-ato-legal/dialogs/normal.html',
+              src : 'bower_components/ecodoc-ato-legal/dialogs/normal.html',
               width : 300,
               height : 320,
               onContentLoad : function() {
@@ -37,7 +37,7 @@
                 var $selectDoIframe = $iframe.find("#atosLegais");
 
 
-                var token = '3cea0a81d2c40ef9a088a6a4df83ff67';
+                var token = JSON.parse(localStorage.getItem('ECODOC')).usuario.authentication_token;
 
                 function formatRepo (repo) {
                   if (repo.loading) return repo.numero;
@@ -128,7 +128,7 @@
       editor.ui.addButton('Normal', {
         label : 'Linkar Ato Legal',
         command : 'normal_dialog',
-        icon : '/scripts/ecodoc-ato-legal/icons/ecodoc-ato-legal.png'
+        icon : 'bower_components/ecodoc-ato-legal/icons/ecodoc-ato-legal.png'
       });
 
       editor.widgets.add( 'ecodoc-ato-legal', {
@@ -150,7 +150,7 @@
         // * http://docs.ckeditor.com/#!/guide/dev_advanced_content_filter
         // * http://docs.ckeditor.com/#!/guide/plugin_sdk_integration_with_acf
         allowedContent:
-          'a(*)[*]{*}',
+            'a(*)[*]{*}',
 
         // Minimum HTML which is required by this widget to work.
         requiredContent: 'a[data-ato-legal-id]',
