@@ -9,74 +9,81 @@
       // We will start from registering the widget dialog window by calling the standard CKEDITOR.dialog.add method inside the init method of the widget plugin definition.
       var iframeWindow = null;
       var me = this;
-      var _ato = {};
+      var token = JSON.parse(localStorage.getItem('ECODOC')).usuario.authentication_token;
       CKEDITOR.dialog.add('normal_dialog', function() {
         return {
-          title : 'Linkar Ato Legal',
+          title : 'Vincular Ato Legal',
           resizable: CKEDITOR.DIALOG_RESIZE_NONE,
-          minWidth: 200,
+          minWidth: 900,
           minHeight: 230,
           contents : [{
             id : 'iframe',
-            label : 'Linkar Ato Legal',
+            label : 'Vincular Ato Legal',
             expand : true,
             elements : [{
-              id : 'atoLegalIframe',
-              type : 'iframe',
-              src : '/bower_components/ecodoc-ato-legal/dialogs/normal.html',
-              width : 300,
-              height : 320,
-              onContentLoad : function() {
-                var iframe = document.getElementById(this._.frameId);
-                iframeWindow = iframe.contentWindow;
-
-                var $iframe = $('#'+this._.frameId).contents();
-                // can now call methods in the iframe window
-
-                var $selectDoIframe = $iframe.find("#atosLegais");
-                var token = JSON.parse(localStorage.getItem('ECODOC')).usuario.authentication_token;
-
-                function formatRepo (repo) {
-                  if (repo.loading) return repo.numero;
-                  _ato = repo;
-                  return '<div class="clearfix">' +
-                      '<div class="col-sm-11">' + repo.rotulo + '</div>'+
-                      '</div>';
-                }
-
-                function formatRepoSelection (repo) {
-                  return repo.rotulo || repo.numero;
-                }
-
-                $selectDoIframe.select2({
-                  placeholder: "Digite o número do Ato Legal",
-                  minimumInputLength: 1,
-                  ajax: { // instead of writing the function to execute the request we use Select2's convenient helper
-                    url: "/api/legislacao/v1/atos_legais",
-                    dataType: 'json',
-                    params : {
+              type: "vbox",
+              id: "urlOptions",
+              children: [{
+                type: "hbox",
+                widths: ["25%", "33%", '25%', '8%'],
+                children: [{
+                  type: "text",
+                  id: "url",
+                  label: 'Número'
+                },{
+                  id: "ano",
+                  type: "select",
+                  label: 'Tipo',
+                  "default": "",
+                  items: [[""]],
+                  onLoad : function(element) {
+                    var that = this;
+                    $.ajax({
+                      url: "/api/legislacao/v1/enumeracoes/tipo_ato_legal",
+                      dataType: 'json',
                       headers: {
                         "Authorization": 'Token token="' + token + '"'
+                      },
+                      async: false,
+                      success: function(data) {
+                        $.each(data.enumeracoes, function(index, item) {
+                          that.add(item.texto, item.id);
+                        });
                       }
-                    },
-                    quietMillis: 250,
-                    data: function (term) {
-                      return {
-                        busca: {
-                          numero: term // search term
-                        }
-                      };
-                    },
-                    results: function (data) {
-                      return { results: data.atos_legais };
-                    },
-                    cache: true
+                    })
+                  }
+                },{
+                  id: "protocol",
+                  type: "select",
+                  label: 'Ano',
+                  "default": "",
+                  items: [["‎"]],
+                  style: 'width:100%;',
+                  onLoad : function(element) {
+                    for(var ano = new Date().getFullYear(); ano >= 1900; ano--) {
+                      this.add(ano, ano);
+                    }
+                  }
+                },{
+                  type : 'button',
+                  id : 'buttonId',
+                  label : 'Buscar',
+                  title : 'My title',
+                  onClick : function() {
+                    // this = CKEDITOR.ui.dialog.button
+                    alert( 'Clicked: ' + this.id );
                   },
-                  formatResult: formatRepo,
-                  formatSelection: formatRepoSelection,
-                  escapeMarkup: function (m) { return m; }
-                });
-              }
+                  style: 'margin-top:13px;'
+                }]
+
+
+              }]
+            },{
+              type: 'html',
+              id: 'htmlRetorno',
+              className: 'htmlRetorno',
+              html: '<table style="width:100%" class="table table-hover table-qf"><thead><tr><th>Número</th><th>Tipo</th><th>Ano</th><th>Publicação</th></tr></thead>' +
+              '<tbody style="margin-top:-10px"><tr><td data-title-text="Número" class="ng-binding">12</td><td data-title-text="Tipo" class="ng-binding">AC</td><td align="center" data-title-text="Ano" class="ng-binding">2010</td><td align="center" data-title-text="Publicação" class="ng-binding">02/09/2015</td></tr><tr><td data-title-text="Número" class="ng-binding">1</td><td data-title-text="Tipo" class="ng-binding">Ação Anulatória</td><td align="center" data-title-text="Ano" class="ng-binding">2011</td><td align="center" data-title-text="Publicação" class="ng-binding">01/09/2015</td></tr></tbody></table>'
             }]
           }],
           onOk : function() {
@@ -110,7 +117,7 @@
       editor.addCommand('normal_dialog', new CKEDITOR.dialogCommand('normal_dialog'));
 
       editor.ui.addButton('ecodocAtoLegal', {
-        label : 'Linkar Ato Legal',
+        label : 'Vincular Ato Legal',
         command : 'normal_dialog',
         icon : '/bower_components/ecodoc-ato-legal/icons/ecodoc-ato-legal.png'
       });
@@ -148,4 +155,3 @@
     }
   });
 })();
-
