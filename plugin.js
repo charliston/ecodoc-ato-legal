@@ -3,7 +3,7 @@
     requires : ['iframedialog', 'widget'],
     init : function(editor) {
       // custom css
-      CKEDITOR.config.contentsCss =  'bower_components/ecodoc-ato-legal/styles/contents.css';
+      CKEDITOR.config.contentsCss =  '/bower_components/ecodoc-ato-legal/styles/contents.css';
       // permitir os campos no editor
       editor.filter.allow( 'a(*)[*]{*};', 'ecodoc-ato-legal' );
       // We will start from registering the widget dialog window by calling the standard CKEDITOR.dialog.add method inside the init method of the widget plugin definition.
@@ -23,7 +23,7 @@
             elements : [{
               id : 'atoLegalIframe',
               type : 'iframe',
-              src : 'bower_components/ecodoc-ato-legal/dialogs/normal.html',
+              src : '/bower_components/ecodoc-ato-legal/dialogs/normal.html',
               width : 300,
               height : 320,
               onContentLoad : function() {
@@ -31,12 +31,9 @@
                 iframeWindow = iframe.contentWindow;
 
                 var $iframe = $('#'+this._.frameId).contents();
-
                 // can now call methods in the iframe window
 
                 var $selectDoIframe = $iframe.find("#atosLegais");
-
-
                 var token = JSON.parse(localStorage.getItem('ECODOC')).usuario.authentication_token;
 
                 function formatRepo (repo) {
@@ -52,45 +49,32 @@
                 }
 
                 $selectDoIframe.select2({
-                  dropdownParent: $iframe.find('body'),
                   placeholder: "Digite o número do Ato Legal",
-                  language: {
-                    // You can find all of the options in the language files provided in the
-                    // build. They all must be functions that return the string that should be
-                    // displayed.
-                    inputTooShort: function () {
-                      return "Digite o número do Ato Legal";
-                    },
-                    noResults: function () {
-                      return "Nenhum registro encontrado";
-                    },
-                    searching: function () {
-                      return "Buscando…";
-                    }
-                  },
-                  ajax: {
+                  minimumInputLength: 1,
+                  ajax: { // instead of writing the function to execute the request we use Select2's convenient helper
                     url: "/api/legislacao/v1/atos_legais",
                     dataType: 'json',
-                    headers: {"Authorization": 'Token token="' + token + '"'},
-                    delay: 250,
-                    data: function (params) {
+                    params : {
+                      headers: {
+                        "Authorization": 'Token token="' + token + '"'
+                      }
+                    },
+                    quietMillis: 250,
+                    data: function (term) {
                       return {
                         busca: {
-                          numero: params.term // search term
+                          numero: term // search term
                         }
                       };
                     },
-                    processResults: function (data, page) {
-                      return {
-                        results: data.atos_legais
-                      };
+                    results: function (data) {
+                      return { results: data.atos_legais };
                     },
                     cache: true
                   },
-                  escapeMarkup: function (markup) { return markup; },
-                  minimumInputLength: 1,
-                  templateResult: formatRepo,
-                  templateSelection: formatRepoSelection
+                  formatResult: formatRepo,
+                  formatSelection: formatRepoSelection,
+                  escapeMarkup: function (m) { return m; }
                 });
               }
             }]
@@ -128,7 +112,7 @@
       editor.ui.addButton('ecodocAtoLegal', {
         label : 'Linkar Ato Legal',
         command : 'normal_dialog',
-        icon : 'bower_components/ecodoc-ato-legal/icons/ecodoc-ato-legal.png'
+        icon : '/bower_components/ecodoc-ato-legal/icons/ecodoc-ato-legal.png'
       });
 
       editor.widgets.add( 'ecodoc-ato-legal', {
