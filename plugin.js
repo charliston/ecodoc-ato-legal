@@ -10,6 +10,7 @@
       var iframeWindow = null;
       var me = this;
       var token = JSON.parse(localStorage.getItem('ECODOC')).usuario.authentication_token;
+      var parentScope = $('#ckeditor').scope();
       CKEDITOR.dialog.add('normal_dialog', function() {
         return {
           title : 'Vincular Ato Legal',
@@ -39,7 +40,7 @@
                   onLoad : function(element) {
                     var that = this;
                     $.ajax({
-                      url: "/api/legislacao/v1/enumeracoes/tipo_ato_legal",
+                      url: parentScope.ckeditor.API_CONFIG.URL+ "/legislacao/v1/enumeracoes/tipo_ato_legal",
                       dataType: 'json',
                       headers: {
                         "Authorization": 'Token token="' + token + '"'
