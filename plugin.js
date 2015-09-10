@@ -125,7 +125,7 @@
 
       editor.addCommand('normal_dialog', new CKEDITOR.dialogCommand('normal_dialog'));
 
-      editor.ui.addButton('Normal', {
+      editor.ui.addButton('ecodocAtoLegal', {
         label : 'Linkar Ato Legal',
         command : 'normal_dialog',
         icon : 'bower_components/ecodoc-ato-legal/icons/ecodoc-ato-legal.png'
