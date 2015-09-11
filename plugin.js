@@ -6,9 +6,8 @@
       CKEDITOR.config.contentsCss =  '/bower_components/ecodoc-ato-legal/styles/contents.css';
       // permitir os campos no editor
       editor.filter.allow( 'a(*)[*]{*};', 'ecodoc-ato-legal' );
-      // We will start from registering the widget dialog window by calling the standard CKEDITOR.dialog.add method inside the init method of the widget plugin definition.
-      var iframeWindow = null;
-      var me = this;
+      var _atos = {};
+      var _atoSelecionado = {};
       var token = JSON.parse(localStorage.getItem('ECODOC')).usuario.authentication_token;
       var parentScope = $('#ckeditor').scope();
       CKEDITOR.dialog.add('normal_dialog', function() {
@@ -18,7 +17,7 @@
           minWidth: 900,
           minHeight: 230,
           contents : [{
-            id : 'iframe',
+            id : 'vincular-ato-legal',
             label : 'Vincular Ato Legal',
             expand : true,
             elements : [{
@@ -28,15 +27,15 @@
                 type: "hbox",
                 widths: ["25%", "33%", '25%', '8%'],
                 children: [{
+                  id: "numero",
                   type: "text",
-                  id: "url",
                   label: 'Número'
                 },{
-                  id: "ano",
+                  id: "tipo",
                   type: "select",
                   label: 'Tipo',
                   "default": "",
-                  items: [[""]],
+                  items: [["Todos", '']],
                   onLoad : function(element) {
                     var that = this;
                     $.ajax({
@@ -54,11 +53,11 @@
                     })
                   }
                 },{
-                  id: "protocol",
+                  id: "ano",
                   type: "select",
                   label: 'Ano',
                   "default": "",
-                  items: [["‎"]],
+                  items: [["Todos‎", '']],
                   style: 'width:100%;',
                   onLoad : function(element) {
                     for(var ano = new Date().getFullYear(); ano >= 1900; ano--) {
@@ -70,34 +69,74 @@
                   id : 'buttonId',
                   label : 'Buscar',
                   title : 'My title',
+                  className: 'btn default',
                   onClick : function() {
-                    // this = CKEDITOR.ui.dialog.button
-                    alert( 'Clicked: ' + this.id );
+                    var dialog = this.getDialog();
+                    var $dialog = $(dialog._.element.$);
+                    var $html = $dialog.find('#htmlRetorno');
+
+                    var busca = {
+                      count:10,
+                      page:1,
+                      busca: {
+                        numero: dialog.getValueOf( 'vincular-ato-legal', 'numero'),
+                        tipo_ato_legal_id: dialog.getValueOf( 'vincular-ato-legal', 'tipo'),
+                        ano: dialog.getValueOf( 'vincular-ato-legal', 'ano')
+                      }
+                    };
+                    $.ajax({
+                      url: parentScope.ckeditor.API_CONFIG.URL+ "/legislacao/v1/atos_legais",
+                      dataType: 'json',
+                      data: busca,
+                      headers: {
+                        "Authorization": 'Token token="' + token + '"'
+                      },
+                      beforeSend: function(){
+                        $html.empty().append('<tr><td class="text-center" colspan="5">Buscando…</td></tr>');
+                      },
+                      success: function(data) {
+                        $html.empty();
+                        _atos = data.atos_legais;
+                        $.each(_atos, function(index, item) {
+                          var append = '<tr data-index="'+ index +'">' +
+                              '<td>' + item.numero + '</td>' +
+                              '<td>' + item.tipo_ato_legal.texto + '</td>' +
+                              '<td>' + '¬¬' + '</td>' +
+                              '<td>' + item.ano + '</td>' +
+                              '<td>' + item.data_publicacao.split('-').reverse().join('/') + '</td>' +
+                            '</tr>';
+                          $html.append(append);
+                        });
+
+                        $html.find('td').click(function(){
+                          // remove o ato selecionado atual, se houver
+                          $html.find('tr.atoSelecionado').removeClass('atoSelecionado');
+                          var tr = $(this).parent('tr');
+                          tr.addClass('atoSelecionado');
+                          _atoSelecionado = _atos[tr.data('index')];
+                        });
+                      }
+                    });
                   },
-                  style: 'margin-top:13px;'
+                  style: 'margin-top:21px;'
                 }]
 
 
               }]
             },{
               type: 'html',
-              id: 'htmlRetorno',
+              id: 'html',
               className: 'htmlRetorno',
-              html: '<table style="width:100%" class="table table-hover table-qf"><thead><tr><th>Número</th><th>Tipo</th><th>Ano</th><th>Publicação</th></tr></thead>' +
-              '<tbody style="margin-top:-10px"><tr><td data-title-text="Número" class="ng-binding">12</td><td data-title-text="Tipo" class="ng-binding">AC</td><td align="center" data-title-text="Ano" class="ng-binding">2010</td><td align="center" data-title-text="Publicação" class="ng-binding">02/09/2015</td></tr><tr><td data-title-text="Número" class="ng-binding">1</td><td data-title-text="Tipo" class="ng-binding">Ação Anulatória</td><td align="center" data-title-text="Ano" class="ng-binding">2011</td><td align="center" data-title-text="Publicação" class="ng-binding">01/09/2015</td></tr></tbody></table>'
+              html: '<table style="width:100%;margin-top:-10px;" class="table table-hover table-atos"><thead>' +
+              '<tr><th>Número</th><th style="width:290px;">Tipo</th><th style="width:338px;">Ementa</th><th>Ano</th><th>Publicação</th></tr></thead>' +
+              '<tbody id="htmlRetorno"></tbody></table>'
             }]
           }],
           onOk : function() {
+            // se nao houver ato selecionado fecha sem fazer o link
+            if(Object.keys(_atoSelecionado).length == 0){ return; }
 
-            var atoLegalIframe = this.getContentElement('iframe', 'atoLegalIframe');
-            // can now interrogate values in the iframe, call javascript methods
-            // can also call editor methods, e.g. editor.focus(), editor.getSelection()
-
-            var $selectDoIframe = $('#'+atoLegalIframe.domId).contents().find("#campo");
-
-            if( $selectDoIframe.val() == ''){return;}
-
-            // texto selecionado
+            // texto selecionado no editor
             var mySelection = editor.getSelection();
             var selectedText = '';
             if (CKEDITOR.env.ie) {
@@ -108,9 +147,16 @@
             }
             if(selectedText.toString() == '') {
               // exibe o numero
-              selectedText = _ato.numero
+              selectedText = _atoSelecionado.numero
             }
-            this._.editor.insertHtml( '<a data-ato-legal-id="'+ _ato.id +'">'+ selectedText +'<a/>' );
+
+            // insere o link no editor
+            this._.editor.insertHtml( '<a data-ato-legal-id="'+ _atoSelecionado.id +'">'+ selectedText +'<a/>' );
+
+            // reseta o plugin
+            _atos = {};
+            _atoSelecionado = {};
+            $(this._.element.$).find('#htmlRetorno').empty();
           }
         };
       });
