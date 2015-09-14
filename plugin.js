@@ -15,7 +15,7 @@
           title : 'Vincular Ato Legal',
           resizable: CKEDITOR.DIALOG_RESIZE_NONE,
           minWidth: 900,
-          minHeight: 230,
+          minHeight: 464,
           contents : [{
             id : 'vincular-ato-legal',
             label : 'Vincular Ato Legal',
