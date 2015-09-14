@@ -104,9 +104,9 @@
                         _atos = data.atos_legais;
                         $.each(_atos, function(index, item) {
                           var ementa = '';
-                          if(item.ementa != null){
-                            ementa = (item.ementa.length > 60)?
-                            item.ementa.substr(0, 60)+'…': item.ementa;
+                          if(item.ementa != null) {
+                            ementa = item.ementa.replace(/(<([^>]+)>)/ig,"");
+                            ementa = (ementa.length > 60)? ementa.substr(0, 60)+'…': ementa;
                           }
                           var append = '<tr data-index="'+ index +'">' +
                               '<td>' + item.numero + '</td>' +
