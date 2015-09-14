@@ -98,13 +98,18 @@
                         $html.empty();
                         _atos = data.atos_legais;
                         $.each(_atos, function(index, item) {
+                          var ementa = '';
+                          if(item.ementa != null){
+                            ementa = (item.ementa.length > 60)?
+                            item.ementa.substr(0, 60)+'…': item.ementa;
+                          }
                           var append = '<tr data-index="'+ index +'">' +
                               '<td>' + item.numero + '</td>' +
                               '<td>' + item.tipo_ato_legal.texto + '</td>' +
-                              '<td>' + '¬¬' + '</td>' +
+                              '<td>' + ementa + '</td>' +
                               '<td>' + item.ano + '</td>' +
                               '<td>' + item.data_publicacao.split('-').reverse().join('/') + '</td>' +
-                            '</tr>';
+                              '</tr>';
                           $html.append(append);
                         });
 
