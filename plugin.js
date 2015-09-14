@@ -38,12 +38,17 @@
                   items: [["Todos", '']],
                   onLoad : function(element) {
                     var that = this;
+                    var busca = {
+                      count:1000000,
+                      page:1
+                    };
                     $.ajax({
                       url: parentScope.ckeditor.API_CONFIG.URL+ "/legislacao/v1/enumeracoes/tipo_ato_legal",
                       dataType: 'json',
                       headers: {
                         "Authorization": 'Token token="' + token + '"'
                       },
+                      data: busca,
                       async: false,
                       success: function(data) {
                         $.each(data.enumeracoes, function(index, item) {
