@@ -3,7 +3,7 @@
     requires : ['iframedialog', 'widget'],
     init : function(editor) {
       // custom css
-      CKEDITOR.config.contentsCss =  '/bower_components/ecodoc-ato-legal/styles/contents.css';
+      CKEDITOR.config.contentsCss =  '.cke_editable {font-family: \'Open Sans\', \'Arial\', sans-serif;font-size: 13px;}a[data-ato-legal-id] {background: #eee;border-bottom: 1px dotted #808080;}';
       // permitir os campos no editor
       editor.filter.allow( 'a(*)[*]{*};', 'ecodoc-ato-legal' );
       var _atos = {};
@@ -161,7 +161,7 @@
             }
 
             // insere o link no editor
-            this._.editor.insertHtml( '<a data-ato-legal-id="'+ _atoSelecionado.id +'">'+ selectedText +'<a/>' );
+            this._.editor.insertHtml( '<a title="'+ _atoSelecionado.rotulo +'" data-ato-legal-id="'+ _atoSelecionado.id +'">'+ selectedText +'<a/>' );
 
             // reseta o plugin
             _atos = {};
@@ -176,39 +176,8 @@
       editor.ui.addButton('ecodocAtoLegal', {
         label : 'Vincular Ato Legal',
         command : 'normal_dialog',
-        icon : '/bower_components/ecodoc-ato-legal/icons/ecodoc-ato-legal.png'
+        icon : '/bower_components/ecodoc-ato-legal/ecodoc-ato-legal.png'
       });
-
-      editor.widgets.add( 'ecodoc-ato-legal', {
-
-        // any code that needs to be executed when DOM is available.
-        init: function() {
-        },
-
-        // will be executed every time the widget data is changed
-        data: function() {
-        },
-
-        // This will ensure that the dialog window will be opened when creating a new widget or
-        // editing an existing one.
-        dialog: 'normal_dialog',
-
-        // Allow all HTML elements and classes that this widget requires.
-        // Read more about the Advanced Content Filter here:
-        // * http://docs.ckeditor.com/#!/guide/dev_advanced_content_filter
-        // * http://docs.ckeditor.com/#!/guide/plugin_sdk_integration_with_acf
-        allowedContent:
-            'a(*)[*]{*}',
-
-        // Minimum HTML which is required by this widget to work.
-        requiredContent: 'a[data-ato-legal-id]',
-
-        // Check the elements that need to be converted to widgets.
-        upcast: function( element ) {
-          return element.name == 'a' && element.hasClass( 'ato-legal-id' );
-        }
-      });
-
     }
   });
 })();
