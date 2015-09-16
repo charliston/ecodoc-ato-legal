@@ -176,8 +176,40 @@
       editor.ui.addButton('ecodocAtoLegal', {
         label : 'Vincular Ato Legal',
         command : 'normal_dialog',
-        icon : '/bower_components/ckeditor-plugin-vincular-ato/icone.png'
+        icon : '/bower_components/ckeditor-plugin-vincular-ato/vincular.png'
       });
+
+      editor.ui.addButton('desvinculaAtoLegal', {
+        label : 'Desvincular Ato Legal',
+        command : 'desvincula',
+        icon : '/bower_components/ckeditor-plugin-vincular-ato/desvincular.png'
+      });
+      editor.addCommand( 'desvincula', new CKEDITOR.desvincularCommand() );
+
     }
   });
 })();
+CKEDITOR.desvincularCommand = function(){};
+CKEDITOR.desvincularCommand.prototype = {
+  /** @ignore */
+  exec : function(editor) {
+    var sel = editor.getSelection(),
+        bms = sel.createBookmarks(),
+        anchor;
+
+    if (sel && ( anchor = sel.getSelectedElement() ) &&
+        ( CKEDITOR.plugins.link.fakeAnchor && !anchor.getChildCount() ? CKEDITOR.plugins.link.tryRestoreFakeAnchor( editor, anchor ) : anchor.is( 'a' ) ) ) {
+      anchor.remove( 1 );
+    } else {
+      if (anchor = CKEDITOR.plugins.link.getSelectedLink(editor))  {
+        if (anchor.hasAttribute('href')) {
+          anchor.removeAttributes( { name : 1, 'data-cke-saved-name' : 1 } );
+          anchor.removeClass( 'cke_anchor' );
+        }
+        else
+          anchor.remove( 1 );
+      }
+    }
+    sel.selectBookmarks( bms );
+  }
+};
