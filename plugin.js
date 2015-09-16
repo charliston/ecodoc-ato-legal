@@ -176,7 +176,7 @@
       editor.ui.addButton('ecodocAtoLegal', {
         label : 'Vincular Ato Legal',
         command : 'normal_dialog',
-        icon : '/bower_components/ecodoc-ato-legal/ecodoc-ato-legal.png'
+        icon : '/bower_components/ckeditor-plugin-vincular-ato/icone.png'
       });
     }
   });
